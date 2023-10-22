@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@t3-oss/env-nextjs": "^0.7.0",
+    "axios": "^1.5.1",
     "chart.js": "^4.4.0",
     "chartjs-plugin-datalabels": "^2.2.0",
     "class-variance-authority": "^0.7.0",
@@ -20,6 +21,7 @@
     "react": "18.2.0",
     "react-aiwriter": "^1.0.0",
     "react-dom": "18.2.0",
+    "react-loading": "^2.0.3",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7",
     "write-like-chat-gpt": "^1.0.7",

@@ -29,7 +29,6 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={"min-h-screen min-w-full bg-gray-100 flex content-center items-center justify-center align-center " + karla.className}>
-          <h1 className=""></h1>
           {/* @ts-ignore */}
           <AIWriter delay={100}>
               <div>

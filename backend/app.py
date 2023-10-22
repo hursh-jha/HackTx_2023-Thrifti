@@ -2,6 +2,8 @@ import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
+from dotenv import load_dotenv
+import os
 import openai
 import sqlite3
 app = Flask(__name__)
@@ -25,8 +27,9 @@ functions = [
     ]
 
 def init():
+    load_dotenv()
     openai.organization = "org-lPzIpyR2eI9Mmgy9WugFvEH1"
-    openai.api_key = ""
+    openai.api_key = os.getenv("OPENAI_API_KEY")
     
 def categorization(transaction, category_list):
     messages = [{
@@ -272,36 +275,37 @@ def improve_spendings():#old_amount, new_amount, category):
 
     return jsonify(category[0])
 
-functions_chatbot = [ 
-        {
-            "name": "chatbot",
-            "description": "A chatbot that helps users budget their money in accordance to whatever they ask for",
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    "response": {
-                        "type": "string",
-                        "description": "The response of the chatbot",
-                    }
-                },
-                "required": ["response"],
-            },
-        }
-    ]
-
 @app.route('/chat', methods=['POST'])    
 def chat():
-    input = request.json['messages']
+    in_messages = request.json['messages']
+    income = request.json['income']
+    expense = request.json['expense']
+    transactions = request.json['transactions']
     messages=[]
-    print("input ", input)
-    if len(input) == 1:
-        messages = [{
-        "role": "system",
-        "content": "You are a chat bot that is designed to help users budget their money in accordance to whatever they ask for:"
-    }]
+    print("input ", in_messages)
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a thrifti, a chat bot that is designed to help users with their money. you only talk in lowercase. pretend like my bank account could talk. that is you."
+        },
+        {
+            "role": "system",
+            "content": "the user has a budget of " + str(income) + " dollars to spend this month. they have spent " + str(expense) + " dollars so far."
+        },
+        {
+            "role": "system",
+            "content": "these are the user's transactions " + str(transactions)
+        },
+        {
+            "role": "system",
+            "content": "ensure that each message mentions the user's budget, spending, or transactions! EVERY message must."
+        }
+    ]
+    messages.extend(in_messages)
+    print(messages)
     print("before create")
     i = 0
-    for item in input:
+    for item in in_messages:
         messages.append({
             "role": item['role'],
             "content": item['content']
@@ -310,19 +314,12 @@ def chat():
     print(messages)
 
     completion = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4",
         messages=messages,
-        functions=functions_chatbot,
-        function_call={
-            "name":"chatbot"
-        }
     )
     print("after create")
 
-    message_res = completion.choices[0].message
-    fn = message_res["function_call"]
-    args = json.loads(fn["arguments"])
-    messages.append({"role":"assistant", "content":list(args.values())[0]})
+    messages.append(completion.choices[0].message)
 
     return jsonify(messages[len(messages) - 1])
 

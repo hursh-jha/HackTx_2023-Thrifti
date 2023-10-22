@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAppContext } from '~/pages/_app';
 
 interface Props {
   textUpdate: (newValue: number) => void; // Replace string with the actual type
@@ -6,10 +7,41 @@ interface Props {
 
 const FileUpload = ({ textUpdate }: Props) => {
   const [fileName, setFileName] = useState('');
+  const { ctxData, setCtxData } = useAppContext();
 
   const handleFileChange = (e) => {
     setFileName(e.target.files[0]?.name || '');
-    alert("File uploaded successfully!")
+    console.log("File uploaded successfully!")
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const csv = event.target?.result;
+      // @ts-ignore
+      const lines = csv.split('\n');
+      // @ts-ignore
+      const result = [];
+      // @ts-ignore
+      lines.forEach((line, index) => {
+        const row = line.split(',');
+        if (index === 0) {
+          // Skip header row
+          return;
+        }
+        result.push(row);
+      });
+      setCtxData({
+        ...ctxData,
+        userData: {
+          ...ctxData.userData,
+          // @ts-ignore
+          transactions: result,
+        },
+      });
+      // @ts-ignore
+      console.log(result)
+    };
+    // alert("File uploaded successfully!")
+    reader.readAsText(file);
     textUpdate(1)
   };
 
