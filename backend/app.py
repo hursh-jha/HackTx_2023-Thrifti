@@ -3,11 +3,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import openai
-from dotenv import load_dotenv
-import os
 app = Flask(__name__)
 CORS(app)
 
+chat_memory = []
 functions = [ 
         {
             "name": "classify_spendings",
@@ -26,16 +25,9 @@ functions = [
     ]
 
 def init():
-<<<<<<< HEAD
-    load_dotenv()
-    openai.organization = "org-exslwZojRIBZFKeavJZPwEyl"
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-
-=======
     openai.organization = "org-lPzIpyR2eI9Mmgy9WugFvEH1"
     openai.api_key = ""
     
->>>>>>> 1f05deaa3f9b9c50d09d1bf89a2ed6fe0fd448d8
 def categorization(transaction, category_list):
     messages = [{
         "role": "user",
@@ -56,7 +48,7 @@ def categorization(transaction, category_list):
     })
 
     messages.append({
-        "role": "user",
+        "role": "system",
         "content": "Now classify that transaction into one of the categories previously listed:"
     })
     print("before create")
@@ -105,7 +97,7 @@ def ideal_budget(category_list):
         # functions_budget[0]["parameters"]['required'].append("category" + str(i))
         functions_budget[0]["parameters"]['required'].append("money" + str(i))
         i+=1
-    # print(functions_budget)
+    print(functions_budget)
     messages = [{
         "role": "user",
         "content": "Read this list of possible categories:"
@@ -155,18 +147,19 @@ def call_gpt_categorization():#transaction):
     while i < 10:
         category = categorization(transaction, category_list)
         if category != 0:
-            return category
+            return jsonify(category)
             
         i += 1
-    return "Miscellaneous"
-    return category
+    return jsonify("Miscellaneous")
 
 
-@app.route('/budget_creation', methods=['GET'])
+@app.route('/budget_creation', methods=['POST'])
 def call_gpt_budget():#amount, category_list= ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]):
     found = False
-    category_list = request.args.get("category_list")
+    amount = request.json['amount']
+    category_list = request.json['category_list']
     default_list= ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]
+    category_list = set(category_list)
     category_list.add("Savings")
     category_list.add("Investment")
     i = 0
@@ -179,7 +172,7 @@ def call_gpt_budget():#amount, category_list= ["Investment", "Travel/ Entertainm
         
         correct_budget = True
         j = 0
-        sum = 0
+        total = 0
         while j < len(budget):
             print("column: " + str(budget[j]) + " value: " + str(category_list.__contains__(budget[j])))
             # found = False
@@ -188,17 +181,17 @@ def call_gpt_budget():#amount, category_list= ["Investment", "Travel/ Entertainm
             # j+=1
             # if correct_budget:
             #     correct_budget = found
-            sum += budget[j]
+            total += budget[j]
             j+=1
         print(budget)
-        print(sum)
-        if sum == 100: #and correct_budget:
+        print(total)
+        if total == 100: #and correct_budget:
             return_budget = {}
             z = 0
             for value in category_list:
                 return_budget[value] = budget[z] / 100 * amount
                 z+=1
-            return return_budget
+            return jsonify(return_budget)
             # k = 0
             # new_budget = {}
             # while k < len(budget):
@@ -212,7 +205,7 @@ def call_gpt_budget():#amount, category_list= ["Investment", "Travel/ Entertainm
     for cat in category_list:
         defacto_budget[cat] = (amount/len(category_list))
         
-    return defacto_budget
+    return jsonify(defacto_budget)
 
 
 functions_improvement = [ 
@@ -246,7 +239,7 @@ def improve_spendings():#old_amount, new_amount, category):
         "content": "What would you recommend I do to get to my desired spending amount on " + category
     })
     messages.append({
-        "role": "user", 
+        "role": "system", 
         "content": "Give me three possible approaches:"
     })
 
@@ -265,7 +258,61 @@ def improve_spendings():#old_amount, new_amount, category):
 
     category = list(args.values())
 
-    return category[0]
+    return jsonify(category[0])
+
+functions_chatbot = [ 
+        {
+            "name": "chatbot",
+            "description": "A chatbot that helps users budget their money in accordance to whatever they ask for",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "response": {
+                        "type": "string",
+                        "description": "The response of the chatbot",
+                    }
+                },
+                "required": ["response"],
+            },
+        }
+    ]
+
+@app.route('/chat', methods=['POST'])    
+def categorization():
+    input = request.json['messages']
+    messages=[]
+    print("input ", input)
+    if len(input) == 1:
+        messages = [{
+        "role": "system",
+        "content": "You are a chat bot that is designed to help users budget their money in accordance to whatever they ask for:"
+    }]
+    print("before create")
+    i = 0
+    for item in input:
+        messages.append({
+            "role": item['role'],
+            "content": item['content']
+        })
+        i+=1
+    print(messages)
+
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=messages,
+        functions=functions_chatbot,
+        function_call={
+            "name":"chatbot"
+        }
+    )
+    print("after create")
+
+    message_res = completion.choices[0].message
+    fn = message_res["function_call"]
+    args = json.loads(fn["arguments"])
+    messages.append({"role":"assistant", "content":list(args.values())})
+
+    return jsonify(messages)
 
 
 
