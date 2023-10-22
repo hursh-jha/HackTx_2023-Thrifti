@@ -39,7 +39,7 @@ const karla = Karla({
 const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
-
+  
   useEffect(() => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext("2d");
@@ -48,6 +48,7 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
           chartInstanceRef.current.destroy();
         }
         const colors = generateColors(data.length);
+        
         chartInstanceRef.current = new Chart(ctx, {
           type: "pie",
           data: {
@@ -63,19 +64,30 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
           },
           options: {
             responsive: true,
+            aspectRatio: .55,
+            // maintainAspectRatio: false,
+            layout: {
+              padding: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+              }
+            },
             plugins: {
               legend: {
-                position: "right",
+                position: "bottom",
+                align: "start",
                 labels: {
                   font: {
                     family: karla.style.fontFamily,
-                    size: 25,
+                    size: 18,
                   },
-                  generateLabels: (chart) => {
+                  generateLabels:  (chart) => {
                     return chart.data.labels!.map((label, index) => {
                       return {
                         text: `${label}: $${data[index]!.toFixed(2)}`,
-                        fontColor: "#059669",
+                        fontColor: "#214D3C",
                         fillStyle: colors[index],
                         strokeStyle: colors[index],
                         lineWidth: 1,
@@ -108,6 +120,16 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
         }) as any;
       }
     }
+    // @ts-ignore
+    const originalFit = chartInstanceRef.current.legend.fit;
+    // @ts-ignore
+    chartInstanceRef.current.legend.fit = function fit() {
+      // Call the original function and bind scope in order to use `this` correctly inside it
+      // @ts-ignore
+      originalFit.bind(chartInstanceRef.current.legend)();
+      // Change the height as suggested in other answers
+      // @ts-ignore
+    }
 
     return () => {
       if (chartInstanceRef.current) {
@@ -116,7 +138,7 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
     };
   }, [labels, data]);
 
-  return <canvas ref={chartRef}></canvas>;
+  return <canvas ref={chartRef} ></canvas>;
 };
 
 export default PieChart;

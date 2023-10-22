@@ -5,6 +5,7 @@ import AIWriter from "react-aiwriter";
 import { text } from 'stream/consumers';
 import { useRouter } from 'next/navigation';
 import FileUpload from './FileUpload';
+import { useAppContext } from '~/pages/_app';
 
 const sm = IBM_Plex_Mono({
   weight: ['400', '700'],
@@ -17,6 +18,8 @@ interface Props {
 }
 
 const Intro = ({ enable, textUpdate }: Props) => {
+    const { ctxData, setCtxData } = useAppContext();
+
    const [page, setPage] = useState(1);
   const router = useRouter();
   const [formData, setFormData] = useState(
@@ -54,6 +57,14 @@ const Intro = ({ enable, textUpdate }: Props) => {
 
     setError(''); 
     if (page === 3 && fileUpload === 1) {
+    setCtxData({
+        ...ctxData,
+        userData: {
+          ...ctxData.userData,
+          // @ts-ignore
+          formData: formData,
+        },
+      });
       router.push("/chat")
       return
     }
