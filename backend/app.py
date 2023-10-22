@@ -322,7 +322,7 @@ def chat():
     message_res = completion.choices[0].message
     fn = message_res["function_call"]
     args = json.loads(fn["arguments"])
-    messages.append({"role":"assistant", "content":list(args.values())})
+    messages.append({"role":"assistant", "content":list(args.values())[0]})
 
     return jsonify(messages)
 
