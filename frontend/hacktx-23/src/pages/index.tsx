@@ -19,11 +19,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className={"min-h-screen min-w-full bg-gray-100 flex content-center items-center justify-center align-center " + karla.className}>
+          <h1 className=""></h1>
           {/* @ts-ignore */}
           <AIWriter delay={100}>
               <div>
                 <p className='text-2xl pb-4 text-emerald-600 w-[400px]'>hey! i'm thrifti, your *free* AI financial advisor! i'll learn a little about your spending habits and hopefully save you some cash.</p>
-                <button className="bg-emerald-600">get started -></button>
+                <button className="float-left hover:bg-emerald-700 bg-emerald-600 mt-2 py-2 px-4 rounded-sm text-white">get started -></button>
               </div>
           </AIWriter>
         <Intro/>
