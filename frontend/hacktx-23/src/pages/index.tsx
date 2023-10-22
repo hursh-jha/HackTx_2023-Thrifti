@@ -1,3 +1,4 @@
+// index.tsx
 import Head from "next/head";
 import Link from "next/link";
 import { Karla} from "next/font/google"
