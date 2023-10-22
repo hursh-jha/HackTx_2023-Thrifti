@@ -5,9 +5,9 @@ import pandas as pd
 from dotenv import load_dotenv
 import os
 import openai
+import sqlite3
 app = Flask(__name__)
 CORS(app)
-
 chat_memory = []
 functions = [ 
         {
@@ -327,15 +327,26 @@ def chat():
     args = json.loads(fn["arguments"])
     messages.append({"role":"assistant", "content":list(args.values())[0]})
 
-    return jsonify(messages)
+    return jsonify(messages[len(messages) - 1])
 
-
+@app.route('/buyable_food', methods=['GET'])    
+def buyable_food():
+    conn = sqlite3.connect('food_database.db')
+    cursor = conn.cursor()
+    budget = int(request.args.get("budget"))
+    query = ("SELECT * FROM meals WHERE price < " + str(budget))
+    cursor.execute(query)
+    rows = cursor.fetchall()
+    conn.close()
+    return jsonify(rows)
+    
 
 def parse_csv( file):
     df = pd.read_csv(file)
     df = df.loc[df['Amount'] > 0]
     return df
     
+
     
 
 if __name__ == '__main__':
