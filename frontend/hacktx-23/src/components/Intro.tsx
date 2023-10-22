@@ -13,7 +13,7 @@ const Intro = ({ enable, textUpdate }: Props) => {
   const [page, setPage] = useState(1);
   const [formData, setFormData] = useState(
     { monthlyIncome: '', monthlyExpense: '', fileUpload: ''});
-  const [fileUpload, setFileUpload] = useState(null);
+  const [fileUpload, setFileUpload] = useState(false);
 
   const handleBack = () => {
     if (page > 1) {
@@ -74,10 +74,10 @@ const Intro = ({ enable, textUpdate }: Props) => {
             <div className='block w-[350px]'>
               
               {/* <h1 className='text-emerald-600 mb-2'>accepted file types (.csv)</h1> */}
-              <FileUpload />
-              <h1 className='text-emerald-600 my-3  text-center'>- or -</h1>
+              <FileUpload textUpdate={setFileUpload} />
+              <h1 className='text-emerald-600 my-3  text-center'>- or - {fileUpload}</h1>
               <button className="cursor-pointer w-full bg-gray-900 hover:bg-gray-800 text-center  text-white p-2 py-2 mb-5 rounded">
-                link with plaid
+                link with plaid {fileUpload}
               </button>
             </div>
           )}

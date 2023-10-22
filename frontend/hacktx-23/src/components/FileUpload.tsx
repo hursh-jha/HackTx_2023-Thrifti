@@ -1,10 +1,16 @@
 import { useState } from 'react';
 
-const FileUpload = () => {
+interface Props {
+  textUpdate: (newValue: boolean) => void; // Replace string with the actual type
+}
+
+const FileUpload = ({ textUpdate }: Props) => {
   const [fileName, setFileName] = useState('');
 
   const handleFileChange = (e) => {
     setFileName(e.target.files[0]?.name || '');
+    alert("File uploaded successfully!")
+    textUpdate(true)
   };
 
   return (
