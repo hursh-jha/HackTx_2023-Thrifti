@@ -1,14 +1,13 @@
-// PieChart.tsx
-import React, { useEffect, useRef } from "react";
-import { Karla } from "next/font/google";
-import Chart from "chart.js/auto";
-import "chartjs-plugin-datalabels";
+// BarGraph.tsx
 
-interface PieChartProps {
+import React, { useEffect, useRef } from "react";
+import Chart from "chart.js/auto";
+import { Karla } from "next/font/google";
+
+interface BarGraphProps {
   labels: string[];
   data: number[];
 }
-Chart.defaults.plugins.legend.labels.color = "green";
 
 const baseColors = [
   "#EF4444",
@@ -36,7 +35,7 @@ const karla = Karla({
   subsets: ["latin"],
 });
 
-const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
+const BarGraph: React.FC<BarGraphProps> = ({ labels, data }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
 
@@ -47,9 +46,11 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
         if (chartInstanceRef.current) {
           chartInstanceRef.current.destroy();
         }
+
         const colors = generateColors(data.length);
+
         chartInstanceRef.current = new Chart(ctx, {
-          type: "pie",
+          type: "bar",
           data: {
             labels,
             datasets: [
@@ -65,43 +66,27 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
             responsive: true,
             plugins: {
               legend: {
-                position: "right",
-                labels: {
+                display: false,
+              },
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                grid: {
+                  display: false,
+                },
+                ticks: {
+                  color: "#059669",
                   font: {
                     family: karla.style.fontFamily,
-                    size: 25,
-                  },
-                  generateLabels: (chart) => {
-                    return chart.data.labels!.map((label, index) => {
-                      return {
-                        text: `${label}: $${data[index]!.toFixed(2)}`,
-                        fontColor: "#059669",
-                        fillStyle: colors[index],
-                        strokeStyle: colors[index],
-                        lineWidth: 1,
-                        hidden: isNaN(
-                          chart.data.datasets[0]!.data[index] as number,
-                        ),
-                        index: index,
-                      };
-                    });
                   },
                 },
               },
-              tooltip: {
-                callbacks: {
-                  label: (context) => {
-                    const percentage = (
-                      ((context.raw as number) /
-                        data.reduce((acc, value) => acc + value, 0)) *
-                      100
-                    ).toFixed(2);
-                    return `${context.label}: ${percentage}%`;
-                  },
+              y: {
+                beginAtZero: true,
+                grid: {
+                  display: false,
                 },
-              },
-              datalabels: {
-                display: false,
               },
             },
           },
@@ -119,4 +104,4 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
   return <canvas ref={chartRef}></canvas>;
 };
 
-export default PieChart;
+export default BarGraph;
