@@ -20,7 +20,7 @@ const karla = Karla({
 
 export default function Home() {
   const [enable, setEnable] = useState(false);
-  const [text, setText] = useState("hey! i'm thrifti, your *free* AI financial advisor! i'll learn a little about your spending habits and hopefully save you some cash.");
+  const [text, setText] = useState("hey! i'm thrifti, your *free* AI financial advisor! i'll learn a little about your spending habits and save you a lot of cash.");
   return (
     <>
       <Head>

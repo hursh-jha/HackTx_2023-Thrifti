@@ -32,7 +32,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 
   return (
     <AppContext.Provider value={{ ctxData, setCtxData }}>
-      <Link href={"/"} className='fixed  top-4 left-16 text-2xl font-bold text-emerald-900'>thrifti</Link>
+      <Link href={"/"} className='fixed  top-4 left-16 text-2xl font-bold text-emerald-600'>thrifti</Link>
       <Component {...pageProps} />
     </AppContext.Provider>
   );

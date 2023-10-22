@@ -94,12 +94,13 @@ functions_budget = [
 
 def ideal_budget(category_list):
     i = 0
-    for cat in category_list:
-        # functions_budget[0]["parameters"]["properties"]["category" + str(i)] = {"type": "string", "description": "The " + str(i) + " category of the budget"}
-        functions_budget[0]["parameters"]["properties"]["money" + str(i)] = {"type": "integer", "description": "The " + str(i) + " amount of the budget"}
-        # functions_budget[0]["parameters"]['required'].append("category" + str(i))
-        functions_budget[0]["parameters"]['required'].append("money" + str(i))
-        i+=1
+    if len(functions_budget[0]["parameters"]['required']) == 0:
+        for cat in category_list:
+            # functions_budget[0]["parameters"]["properties"]["category" + str(i)] = {"type": "string", "description": "The " + str(i) + " category of the budget"}
+            functions_budget[0]["parameters"]["properties"]["money" + str(i)] = {"type": "integer", "description": "The " + str(i) + " amount of the budget"}
+            # functions_budget[0]["parameters"]['required'].append("category" + str(i))
+            functions_budget[0]["parameters"]['required'].append("money" + str(i))
+            i+=1
     print(functions_budget)
     messages = [{
         "role": "user",
@@ -162,10 +163,14 @@ def create_categories():
     transaction_list = request.json['category_list']
     category_set = set()
     for record in transaction_list:
-        if record[4] > 0:
-            if row[5] == 'Miscellaneous' or row[5] == 'Merchandise':
-                row[5] = call_gpt_categorization(str(row))
-            category_set.add(row[5])
+        length = len(record)
+        print(record, length)
+        if length < 2:
+            continue
+        if float(record[-2]) > 0:
+            if record[-1] == 'Miscellaneous' or record[-1] == 'Merchandise':
+                record[-1] = call_gpt_categorization(str(record))
+            category_set.add(record[-1])
     return jsonify(list(category_set))
 
 @app.route('/budget_creation', methods=['POST'])

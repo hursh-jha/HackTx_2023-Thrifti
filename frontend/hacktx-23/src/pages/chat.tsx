@@ -42,16 +42,59 @@ const karla = Karla({
 
 export default function Home() {
     const [enable, setEnable] = useState(false);
-    const [text, setText] = useState("hey! i'm thrifti, your *free* AI financial advisor! i'll learn a little about your spending habits and hopefully save you some cash.");
+    const [text, setText] = useState("hey! i'm thrifti, your *free* AI financial advisor! i'll learn a little about your spending habits and hopefully save you a lot of cash.");
     const { ctxData, setCtxData } = useAppContext();
     const [umessage, setUMessage] = useState('');
     const router = useRouter();
-
+    interface EntryState {
+        data: any[];
+        labels: string[];
+    }
+    const [entries, setEntries] = useState<EntryState>({ "data": [], "labels": [] });
 
     useEffect(() => {
-        if (!ctxData.userData.transactions || !ctxData.userData.formData.monthlyIncome || !ctxData.userData.formData.monthlyExpense) {
+        if (!ctxData.userData.formData || !ctxData.userData.transactions || !ctxData.userData.formData.monthlyIncome || !ctxData.userData.formData.monthlyExpense) {
+            router.push('/');
+            return
+        }
+        
+        const availableFunds = parseFloat(ctxData.userData.formData.monthlyIncome.split("$")[1]) - parseFloat(ctxData.userData.formData.monthlyExpense.split("$")[1]);
+        // check available funds is a number
+        if (isNaN(availableFunds)) {
             router.push('/');
         }
+
+        axios.post("http://127.0.0.1:5000/category_creation", {
+            category_list: ctxData.userData.transactions
+        }).then((response) => {
+            const categories = response.data;
+            console.log(response.data)
+            console.log("one." + ctxData.userData.formData.monthlyIncome)
+            console.log("two." + ctxData.userData.formData.monthlyExpense)
+            console.log("FUNDS: " + availableFunds)
+            axios.post("http://127.0.0.1:5000/budget_creation", {
+                category_list: categories,
+                amount: availableFunds
+            }).then((response) => {
+                console.log("got res")
+                console.log(response.data)
+                const labels_lst = []
+                const data_lst = []
+                for (const [key, value] of Object.entries(response.data)) {
+                    let short = key.replace(/['"`]/g, "")
+                    if(short.startsWith("Travel")) {
+                        short = "Entertainment"
+                    }
+                    labels_lst.push(short)
+                    data_lst.push(value)
+                }
+                // @ts-ignore
+                setEntries({
+                    "data": data_lst,
+                    "labels": labels_lst
+                })
+            })
+        })
     }, []);
 
     const sendMessage = async () => {
@@ -109,8 +152,9 @@ export default function Home() {
             <main className={"min-h-screen min-w-full  bg-gray-100 flex  content-center justify-center align-center" + karla.className}>
                 <div className="min-h-screenblock flex-grow w-full text-slate-500">
                     <div className="px-[64px] py-16 text-lg fixed">
-                        <p className="my-2 ">Monthly Income: {ctxData.userData.formData && ctxData.userData.formData.monthlyIncome}</p>
-                        <p className=" ">Monthly Expenses: {ctxData.userData.formData && ctxData.userData.formData.monthlyExpense}</p>
+                        <p className="my-2 ">monthly income: {ctxData.userData.formData && ctxData.userData.formData.monthlyIncome}</p>
+                        <p className="my-2">monthly expenses: {ctxData.userData.formData && ctxData.userData.formData.monthlyExpense}</p>
+                        <p className="my-2">charges this month: {ctxData.userData.transactions && ctxData.userData.transactions.length}</p>
                     </div>
                 </div>
                 <div className="!min-w-[600px] !max-w-[600px] mx-2 my-10 items-end content-end self-end">
@@ -134,7 +178,7 @@ export default function Home() {
                     <div className="flex content-evenly justify-between">
                         <Input
                             name="monthlyExpense"
-                            className={`text-lg mt-4 w-10/12 font-light ring-slate-400 focus:!ring-emerald-600  placeholder-emerald-600/50 text-emerald-600 py-5 ring-1 `}
+                            className={`text-lg mt-4 w-10/12 font-[400] focus:!ring-emerald-600  placeholder-emerald-600/50 text-emerald-600 py-5 ring-1 `}
                             placeholder="what are some meals i can cook on my budget?"
                             value={umessage}
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUMessage(e.target.value)}
@@ -144,8 +188,8 @@ export default function Home() {
                     {/* <input type="text" value={umessage} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUMessage(e.target.value)} /> */}
                 </div>
                 <div className="min-h-screen block flex-grow w-full ">
-                    <div className="px-[64px] py-3 text-lg float-right text-right">
-                        <PieChart labels={labels} data={data}/>
+                    <div className="px-[64px] py-3 fixed text-lg float-right text-right">
+                        <PieChart labels={entries.labels} data={entries.data}/>
                         {/* <p className="my-2 font-bold">Monthly Income: {ctxData.userData.formData && ctxData.userData.formData.monthlyIncome}</p> */}
                         {/* <p className=" font-bold">Monthly Expenses: {ctxData.userData.formData && ctxData.userData.formData.monthlyExpense}</p> */}
                     </div>

@@ -11,16 +11,15 @@ interface PieChartProps {
 Chart.defaults.plugins.legend.labels.color = "green";
 
 const baseColors = [
-  "#EF4444",
-  "#F59E0B",
-  "#10B981",
-  "#3B82F6",
-  "#9333EA",
-  "#EC4899",
-  "#6EE7B7",
-  "#A78BFA",
-  "#FBBF24",
-  "#2DD4BF",
+
+  "#6ee7b7",
+  "#34d399",
+  "#10b981",
+  "#059669",
+  "#047857",
+  "#065f46",
+  "#064e3b",
+  "#022c22",
 ];
 
 const generateColors = (numColors: number) => {
@@ -64,7 +63,7 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
           },
           options: {
             responsive: true,
-            aspectRatio: .55,
+            aspectRatio: .45,
             // maintainAspectRatio: false,
             layout: {
               padding: {

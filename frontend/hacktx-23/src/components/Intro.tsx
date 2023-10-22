@@ -80,7 +80,7 @@ const Intro = ({ enable, textUpdate }: Props) => {
 
   const pageInputs: string[] = [
     "first off, let's get an idea of your income and expenses. how much do you make in a month?",
-    "ok mr./ms./mx. moneybags! now, how much do you spend on rent?",
+    "ok mr. / ms. / mx. moneybags! now, how much do you spend on rent?",
     "now, we can speed up the process by uploading a credit card statement. this is optional, but it'll help me learn more about your spending habits.",
   ]
 
@@ -153,14 +153,17 @@ const Intro = ({ enable, textUpdate }: Props) => {
 
     {page < pageInputs.length + 2 && (
       <div className="inputs-ctr pb-4">
-        <button className="left mt-2 rounded-md transition-all duration-100 bg-emerald-500 hover:bg-emerald-600 border-emerald-500 border-[1px] px-3 py-1 shadow-sm w-min" onClick={handleBack}>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#ffffff" className="w-6 h-6">
+        <button className="left mt-2 rounded-md transition-all duration-100  pr-3 pt-[6px]  text-slate-400 w-fit" onClick={handleBack}>   
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#94a3b8" className="w-6 h-6 float-left">
             <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />
           </svg>
+          <p className={"float-right pl-2 " + sm.className}>
+            back
+          </p>
         </button>
 
         <button 
-          className={"float-right hover:text-emerald-600 mt-2 w-fit rounded-md px-2 py-1 text-slate-400 font-light "}
+          className={"float-right shadow-sm bg-emerald-500 hover:bg-emerald-600 border-emerald-500 border-[1px] mt-2 w-fit rounded-md px-3 py-1 text-white font-light "}
           onClick={handleNext}
         >
           <p className={"float-left pr-2 " + sm.className}>
