@@ -324,7 +324,7 @@ def chat():
     args = json.loads(fn["arguments"])
     messages.append({"role":"assistant", "content":list(args.values())[0]})
 
-    return jsonify(messages)
+    return jsonify(messages[len(messages) - 1])
 
 @app.route('/buyable_food', methods=['GET'])    
 def buyable_food():
