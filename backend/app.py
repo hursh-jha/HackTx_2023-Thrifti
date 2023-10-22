@@ -152,6 +152,15 @@ def call_gpt_categorization():#transaction):
         i += 1
     return jsonify("Miscellaneous")
 
+@app.route('/category_creation', methods=['POST'])
+def create_categories():
+    transaction_list = request.json['category_list']
+    category_set = set()
+    for record in transaction_list:
+        if row['Category'] == 'Miscellaneous' or row['Category'] == 'Merchandise':
+            row['Category'] = call_gpt_categorization(str(row))
+        category_set.add(row['Category'])
+    return jsonify(list(category_set))
 
 @app.route('/budget_creation', methods=['POST'])
 def call_gpt_budget():#amount, category_list= ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]):
