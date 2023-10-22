@@ -159,9 +159,10 @@ def create_categories():
     transaction_list = request.json['category_list']
     category_set = set()
     for record in transaction_list:
-        if row['Category'] == 'Miscellaneous' or row['Category'] == 'Merchandise':
-            row['Category'] = call_gpt_categorization(str(row))
-        category_set.add(row['Category'])
+        if record['amount'] > 0:
+            if row['Category'] == 'Miscellaneous' or row['Category'] == 'Merchandise':
+                row['Category'] = call_gpt_categorization(str(row))
+            category_set.add(row['Category'])
     return jsonify(list(category_set))
 
 @app.route('/budget_creation', methods=['POST'])
