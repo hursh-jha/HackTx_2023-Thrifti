@@ -1,10 +1,11 @@
 // index.tsx
 import Head from "next/head";
 import Link from "next/link";
-import { Karla} from "next/font/google"
+import { Karla } from "next/font/google"
 import { Input } from "~/components/ui/input"
 import Intro from "~/components/Intro"
 import AIWriter from "react-aiwriter";
+import { useState } from "react";
 
 const karla = Karla({
   weight: ['200', '300', '400', '500', '600', '700'],
@@ -12,6 +13,8 @@ const karla = Karla({
 });
 
 export default function Home() {
+  const [enable, setEnable] = useState(false);
+  const [text, setText] = useState("hey! i'm thrifti, your *free* AI financial advisor! i'll learn a little about your spending habits and hopefully save you some cash.");
   return (
     <>
       <Head>
@@ -24,11 +27,13 @@ export default function Home() {
           {/* @ts-ignore */}
           <AIWriter delay={100}>
               <div>
-                <p className='text-2xl pb-4 text-emerald-600 w-[400px]'>hey! i'm thrifti, your *free* AI financial advisor! i'll learn a little about your spending habits and hopefully save you some cash.</p>
-                <button className="float-left hover:bg-emerald-700 bg-emerald-600 mt-2 py-2 px-4 rounded-sm text-white">get started -></button>
-              </div>
+                <p className='text-2xl pb-4 mr-8 text-emerald-600 w-[350px]'>{text}</p>
+                {!enable && (
+                <button onClick={() => setEnable(true)} className="float-left hover:bg-emerald-700 bg-emerald-600 mt-2 py-2 px-4 rounded-sm text-white">get started -></button>
+                )}
+                </div>
           </AIWriter>
-        <Intro/>
+          <Intro enable={enable} textUpdate={setText}/>
       </main>
     </>
   );
