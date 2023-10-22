@@ -47,7 +47,7 @@ def categorization(transaction, category_list):
     })
     messages.append({
         "role": "user",
-        "content": "".join(transaction)
+        "content": "".join(str(transaction))
     })
 
     messages.append({
@@ -141,9 +141,11 @@ def ideal_budget(category_list):
 
     return arguments
 
-@app.route('/categorization', methods=['GET'])
+
+
+@app.route('/categorization', methods=['POST'])
 def call_gpt_categorization():#transaction):
-    transaction = request.args.get("transaction")
+    transaction = request.json['transaction']
     category_list = ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]
     i = 0
     found = False
@@ -160,9 +162,10 @@ def create_categories():
     transaction_list = request.json['category_list']
     category_set = set()
     for record in transaction_list:
-        if row['Category'] == 'Miscellaneous' or row['Category'] == 'Merchandise':
-            row['Category'] = call_gpt_categorization(str(row))
-        category_set.add(row['Category'])
+        if record['amount'] > 0:
+            if row['Category'] == 'Miscellaneous' or row['Category'] == 'Merchandise':
+                row['Category'] = call_gpt_categorization(str(row))
+            category_set.add(row['Category'])
     return jsonify(list(category_set))
 
 @app.route('/budget_creation', methods=['POST'])
@@ -290,7 +293,7 @@ functions_chatbot = [
     ]
 
 @app.route('/chat', methods=['POST'])    
-def categorization():
+def chat():
     input = request.json['messages']
     messages=[]
     print("input ", input)
