@@ -4,7 +4,7 @@ from flask_cors import CORS
 import pandas as pd
 import openai
 app = Flask(__name__)
-# CORS(app)
+CORS(app)
 
 functions = [ 
         {
@@ -25,7 +25,7 @@ functions = [
 
 def init():
     openai.organization = "org-lPzIpyR2eI9Mmgy9WugFvEH1"
-    openai.api_key = "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"
+    openai.api_key = ""
     
 def categorization(transaction, category_list):
     messages = [{
@@ -88,12 +88,12 @@ functions_budget = [
         }
     ]
 
-def ideal_budget(amount, category_list):
+def ideal_budget(category_list):
     i = 0
     for cat in category_list:
-        functions_budget[0]["parameters"]["properties"]["category" + str(i)] = {"type": "string", "description": "The " + str(i) + " category of the budget"}
+        # functions_budget[0]["parameters"]["properties"]["category" + str(i)] = {"type": "string", "description": "The " + str(i) + " category of the budget"}
         functions_budget[0]["parameters"]["properties"]["money" + str(i)] = {"type": "integer", "description": "The " + str(i) + " amount of the budget"}
-        functions_budget[0]["parameters"]['required'].append("category" + str(i))
+        # functions_budget[0]["parameters"]['required'].append("category" + str(i))
         functions_budget[0]["parameters"]['required'].append("money" + str(i))
         i+=1
     print(functions_budget)
@@ -101,24 +101,24 @@ def ideal_budget(amount, category_list):
         "role": "user",
         "content": "Read this list of possible categories:"
     }]
-    messages.append({
-        "role": "user",
-        "content": "".join(category_list)
-    })
+    # messages.append({
+    #     "role": "user",
+    #     "content": "".join(category_list)
+    # })
 
     messages.append({
         "role": "user", 
-        "content": "This is the amount of money that I have to budget:"
+        "content": "Assign a percentage of my budget to spend on each category:"
     })
-    messages.append({
-        "role": "user",
-        "content": "".join(str(amount))
-    })
+    # messages.append({
+    #     "role": "user",
+    #     "content": "".join(str(amount))
+    # })
 
-    messages.append({
-        "role": "user",
-        "content": "Now build me a budget with the percent of money specified across the list of possible categories in the list with category:"
-    })
+    # messages.append({
+    #     "role": "user",
+    #     "content": "Now build me a budget with the percent of money specified across the list of possible categories in the list with category:"
+    # })
     
     completion = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
@@ -137,7 +137,9 @@ def ideal_budget(amount, category_list):
 
     return arguments
 
-def call_gpt_categorization(transaction):
+@app.route('/categorization', methods=['GET'])
+def call_gpt_categorization():#transaction):
+    transaction = request.args.get("transaction")
     category_list = ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]
     i = 0
     found = False
@@ -150,45 +152,57 @@ def call_gpt_categorization(transaction):
     return "Miscellaneous"
     return category
 
-def call_gpt_budget(amount, category_list= ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]):
+
+@app.route('/budget_creation', methods=['GET'])
+def call_gpt_budget():#amount, category_list= ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]):
     found = False
+    category_list = request.args.get("category_list")
     default_list= ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]
+    category_list.add("Savings")
+    category_list.add("Investment")
     i = 0
     while i < 10:
         budget = []
         if i == 0:
-            budget = ideal_budget(amount, category_list)
+            budget = ideal_budget(category_list)
         else:
-            budget = ideal_budget(amount, [])
+            budget = ideal_budget([])
         
         correct_budget = True
         j = 0
         sum = 0
         while j < len(budget):
             print("column: " + str(budget[j]) + " value: " + str(category_list.__contains__(budget[j])))
-            found = False
-            if category_list.__contains__(budget[j]) or default_list.__contains__(budget[j]):
-                found = True
-            j+=1
-            if correct_budget:
-                correct_budget = found
+            # found = False
+            # if category_list.__contains__(budget[j]) or default_list.__contains__(budget[j]):
+            #     found = True
+            # j+=1
+            # if correct_budget:
+            #     correct_budget = found
             sum += budget[j]
             j+=1
         print(budget)
         print(sum)
-        if sum == 100 and correct_budget:
-            k = 0
-            new_budget = {}
-            while k < len(budget):
-                new_budget[budget[k]] = budget[k+1] / 100 * amount
-                k+=2
-            return new_budget
+        if sum == 100: #and correct_budget:
+            return_budget = {}
+            z = 0
+            for value in category_list:
+                return_budget[value] = budget[z] / 100 * amount
+                z+=1
+            return return_budget
+            # k = 0
+            # new_budget = {}
+            # while k < len(budget):
+            #     new_budget[budget[k]] = budget[k+1] / 100 * amount
+            #     k+=2
+            # return new_budget
 
         i+=1
     defacto_budget = {}
+    # defacto_budget = []
     for cat in category_list:
-        defacto_budget[cat] = amount/len(category_list)
-
+        defacto_budget[cat] = (amount/len(category_list))
+        
     return defacto_budget
 
 
@@ -208,8 +222,12 @@ functions_improvement = [
             },
         }
     ]
-    
-def improve_spendings(old_amount, new_amount, category):
+
+@app.route('/improve_spendings', methods=['GET'])    
+def improve_spendings():#old_amount, new_amount, category):
+    old_amount = request.args.get("old_amount")
+    new_amount = request.args.get("new_amount")
+    category = request.args.get("category")
     messages = [{
         "role": "user",
         "content": "I spent " + str(old_amount) + " on " + category + " but I want to spend " + str(new_amount) + ":"
@@ -251,20 +269,20 @@ def parse_csv( file):
 
 if __name__ == '__main__':
     init()
-    df = []
-    # with open('data.csv') as f:
-    df = parse_csv('data.csv')
-    sum = 0
-    temp = set()
-    for index, row in df.iterrows():
+    # df = []
+    # # with open('data.csv') as f:
+    # df = parse_csv('data.csv')
+    # sum = 0
+    # temp = set()
+    # for index, row in df.iterrows():
 
-        sum += row['Amount']
-        if row['Category'] == 'Miscellaneous' or row['Category'] == 'Merchandise':
-            row['Category'] = call_gpt_categorization(str(row))
-        print(row)
-        temp.add(row['Category'])
-    print("temp: " + str(temp))
-    budget = call_gpt_budget(sum, temp)
-    print(budget)
-    print(improve_spendings(100, 50, "Supermarkets"))
-    # app.run(port=5000, debug=True)
+    #     sum += row['Amount']
+    #     if row['Category'] == 'Miscellaneous' or row['Category'] == 'Merchandise':
+    #         row['Category'] = call_gpt_categorization(str(row))
+    #     print(row)
+    #     temp.add(row['Category'])
+    # print("temp: " + str(temp))
+    # budget = call_gpt_budget(sum, temp)
+    # print(budget)
+    # print(improve_spendings(100, 50, "Supermarkets"))
+    app.run(port=5000, debug=True)
