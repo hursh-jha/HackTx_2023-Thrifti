@@ -189,7 +189,9 @@ export default function Home() {
                 </div>
                 <div className="min-h-screen block flex-grow w-full ">
                     <div className="px-[64px] py-3 fixed text-lg float-right text-right">
+                        {entries.labels.length < 1 && <ReactLoading color={"#059669"} type={"bars"} className="h-48 mx-auto ml-48 mt-32 top-0" height={"0%"} width={30} />}
                         <PieChart labels={entries.labels} data={entries.data}/>
+
                         {/* <p className="my-2 font-bold">Monthly Income: {ctxData.userData.formData && ctxData.userData.formData.monthlyIncome}</p> */}
                         {/* <p className=" font-bold">Monthly Expenses: {ctxData.userData.formData && ctxData.userData.formData.monthlyExpense}</p> */}
                     </div>
