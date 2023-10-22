@@ -1,7 +1,7 @@
 import React from "react";
-import PieChart from "../components/PieChart";
+import BarGraph from "../components/BarGraph";
 
-const ChartPage: React.FC = () => {
+const BarGraphPage: React.FC = () => {
   const labels = [
     "Restaurant",
     "Apparel",
@@ -19,10 +19,10 @@ const ChartPage: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>Pie Chart Page</h1>
-      <PieChart labels={labels} data={data} />
+      <h1>Bar Graph Page</h1>
+      <BarGraph labels={labels} data={data} />
     </div>
   );
 };
 
-export default ChartPage;
+export default BarGraphPage;
