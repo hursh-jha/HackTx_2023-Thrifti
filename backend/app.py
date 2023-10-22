@@ -44,7 +44,7 @@ def categorization(transaction, category_list):
     })
     messages.append({
         "role": "user",
-        "content": "".join(transaction)
+        "content": "".join(str(transaction))
     })
 
     messages.append({
@@ -138,9 +138,11 @@ def ideal_budget(category_list):
 
     return arguments
 
-@app.route('/categorization', methods=['GET'])
+
+
+@app.route('/categorization', methods=['POST'])
 def call_gpt_categorization():#transaction):
-    transaction = request.args.get("transaction")
+    transaction = request.json['transaction']
     category_list = ["Investment", "Travel/ Entertainment", "Medicine", "Bills", "Restraunts", "Gasoline", "Supermarkets", "Services", "Savings"]
     i = 0
     found = False
@@ -287,7 +289,7 @@ functions_chatbot = [
     ]
 
 @app.route('/chat', methods=['POST'])    
-def categorization():
+def chat():
     input = request.json['messages']
     messages=[]
     print("input ", input)
