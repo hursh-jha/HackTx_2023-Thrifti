@@ -7,6 +7,7 @@ import "chartjs-plugin-datalabels";
 interface PieChartProps {
   labels: string[];
   data: number[];
+  customFunc: (label: string) => void;
 }
 Chart.defaults.plugins.legend.labels.color = "green";
 
@@ -35,7 +36,7 @@ const karla = Karla({
   subsets: ["latin"],
 });
 
-const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
+const PieChart: React.FC<PieChartProps> = ({ labels, data, customFunc }) => {
   const chartRef = useRef<HTMLCanvasElement | null>(null);
   const chartInstanceRef = useRef<Chart | null>(null);
   
@@ -117,6 +118,19 @@ const PieChart: React.FC<PieChartProps> = ({ labels, data }) => {
             },
           },
         }) as any;
+
+        // @ts-ignore
+        chartInstanceRef.current.canvas.onclick = (event) => {
+                  // @ts-ignore
+                  const points = chartInstanceRef.current.getElementsAtEventForMode(event, 'nearest', { intersect: true }, true);
+                  if (points.length) {
+                    // @ts-ignore
+                    const index = points[0].index;
+                    // @ts-ignore
+                    const label = chartInstanceRef.current.data.labels[index] as string;
+                    customFunc(label)
+                  }
+        };
       }
     }
     // @ts-ignore

@@ -52,6 +52,52 @@ export default function Home() {
     }
     const [entries, setEntries] = useState<EntryState>({ "data": [], "labels": [] });
 
+    const customFunc = async (d_msg: string) => {
+        let n_msg = "Give me insights into my spendings on " + d_msg + "."
+        console.log(ctxData.userData.transactions)
+        setCtxData({
+            ...ctxData,
+            messages: [
+                ...ctxData.messages,
+                {
+                    "role": "user",
+                    "content": n_msg
+                },
+            ],
+        });
+        // @ts-ignore
+        const trStr = ctxData.userData.transactions.map(subList => subList.join(', ')).join('\n');
+        const cleanedStr = trStr.replace(/["\n\r]/g, ' ');
+
+        const response = await axios.post("http://127.0.0.1:5000/chat", {
+            messages: [...ctxData.messages,
+            {
+                "role": "user",
+                "content": n_msg
+            }
+            ],
+            income: ctxData.userData.formData.monthlyIncome,
+            expense: ctxData.userData.formData.monthlyExpense,
+            transactions: cleanedStr
+        });
+        console.log(response.data)
+        console.log(ctxData.messages)
+        setCtxData({
+            ...ctxData,
+            messages: [
+                ...ctxData.messages,
+                {
+                    "role": "user",
+                    "content": n_msg
+                },
+                {
+                    "role": response.data.role,
+                    "content": response.data.content
+                }
+            ],
+        });
+    }
+
     useEffect(() => {
         if (!ctxData.userData.formData || !ctxData.userData.transactions || !ctxData.userData.formData.monthlyIncome || !ctxData.userData.formData.monthlyExpense) {
             router.push('/');
@@ -190,7 +236,7 @@ export default function Home() {
                 <div className="min-h-screen block flex-grow w-full ">
                     <div className="px-[64px] py-3 fixed text-lg float-right text-right">
                         {entries.labels.length < 1 && <ReactLoading color={"#059669"} type={"bars"} className="h-48 mx-auto ml-48 mt-32 top-0" height={"0%"} width={30} />}
-                        <PieChart labels={entries.labels} data={entries.data}/>
+                        <PieChart labels={entries.labels} data={entries.data} customFunc={customFunc}/>
 
                         {/* <p className="my-2 font-bold">Monthly Income: {ctxData.userData.formData && ctxData.userData.formData.monthlyIncome}</p> */}
                         {/* <p className=" font-bold">Monthly Expenses: {ctxData.userData.formData && ctxData.userData.formData.monthlyExpense}</p> */}
