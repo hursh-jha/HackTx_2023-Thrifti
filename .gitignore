@@ -1,4 +1,7 @@
 *.csv
 *.swp
+<<<<<<< HEAD
 .env
 /*/.env
+=======
+>>>>>>> 1f05deaa3f9b9c50d09d1bf89a2ed6fe0fd448d8
