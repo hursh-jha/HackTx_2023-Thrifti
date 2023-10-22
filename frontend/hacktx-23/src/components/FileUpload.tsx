@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 interface Props {
-  textUpdate: (newValue: boolean) => void; // Replace string with the actual type
+  textUpdate: (newValue: number) => void; // Replace string with the actual type
 }
 
 const FileUpload = ({ textUpdate }: Props) => {
@@ -10,7 +10,7 @@ const FileUpload = ({ textUpdate }: Props) => {
   const handleFileChange = (e) => {
     setFileName(e.target.files[0]?.name || '');
     alert("File uploaded successfully!")
-    textUpdate(true)
+    textUpdate(1)
   };
 
   return (

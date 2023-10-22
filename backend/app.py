@@ -3,6 +3,8 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
 import openai
+from dotenv import load_dotenv
+import os
 app = Flask(__name__)
 # CORS(app)
 
@@ -24,9 +26,10 @@ functions = [
     ]
 
 def init():
-    openai.organization = "org-lPzIpyR2eI9Mmgy9WugFvEH1"
-    openai.api_key = "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"
-    
+    load_dotenv()
+    openai.organization = "org-exslwZojRIBZFKeavJZPwEyl"
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
 def categorization(transaction, category_list):
     messages = [{
         "role": "user",
@@ -96,7 +99,7 @@ def ideal_budget(amount, category_list):
         functions_budget[0]["parameters"]['required'].append("category" + str(i))
         functions_budget[0]["parameters"]['required'].append("money" + str(i))
         i+=1
-    print(functions_budget)
+    # print(functions_budget)
     messages = [{
         "role": "user",
         "content": "Read this list of possible categories:"
@@ -174,8 +177,8 @@ def call_gpt_budget(amount, category_list= ["Investment", "Travel/ Entertainment
                 correct_budget = found
             sum += budget[j]
             j+=1
-        print(budget)
-        print(sum)
+        # print(budget)
+        # print(sum)
         if sum == 100 and correct_budget:
             k = 0
             new_budget = {}

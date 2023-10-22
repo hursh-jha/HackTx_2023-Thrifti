@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import { Input } from '~/components/ui/input'
+import { IBM_Plex_Mono } from "next/font/google"
 import AIWriter from "react-aiwriter";
 import { text } from 'stream/consumers';
 import FileUpload from './FileUpload';
+
+const sm = IBM_Plex_Mono({
+  weight: ['400', '700'],
+  subsets: ['latin']
+});
 
 interface Props {
   enable: boolean;
@@ -13,7 +19,7 @@ const Intro = ({ enable, textUpdate }: Props) => {
   const [page, setPage] = useState(1);
   const [formData, setFormData] = useState(
     { monthlyIncome: '', monthlyExpense: '', fileUpload: ''});
-  const [fileUpload, setFileUpload] = useState(false);
+  const [fileUpload, setFileUpload] = useState(0);
 
   const handleBack = () => {
     if (page > 1) {
@@ -43,7 +49,7 @@ const Intro = ({ enable, textUpdate }: Props) => {
     if (pageInputs[page - 1] !== undefined && pageInputs[page - 1] !== null && pageInputs[page - 1] !== '')
       textUpdate(pageInputs[page - 1] || '');
     return (
-      <div className="center bg-white w-fit h-fit px-8 pt-6 pb-3 rounded-lg border-2 shadow-sm">
+      <div className={"center bg-white w-fit h-fit px-8 pt-6 pb-3 rounded-lg border-2 shadow-sm "}>
         <div className="content">
           {page === 1 && (
             <div>
@@ -75,9 +81,9 @@ const Intro = ({ enable, textUpdate }: Props) => {
               
               {/* <h1 className='text-emerald-600 mb-2'>accepted file types (.csv)</h1> */}
               <FileUpload textUpdate={setFileUpload} />
-              <h1 className='text-emerald-600 my-3  text-center'>- or - {fileUpload}</h1>
+              <h1 className='text-emerald-600 my-3  text-center'>- or -</h1>
               <button className="cursor-pointer w-full bg-gray-900 hover:bg-gray-800 text-center  text-white p-2 py-2 mb-5 rounded">
-                link with plaid {fileUpload}
+                link with plaid 
               </button>
             </div>
           )}
@@ -102,8 +108,8 @@ const Intro = ({ enable, textUpdate }: Props) => {
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="#ffffff" className="w-6 h-6">                 <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18" />               </svg>
           </button>
 
-          <button className="float-right hover:text-emerald-600 mt-2 w-fit rounded-md px-2 py-1 text-slate-400 font-light" onClick={handleNext}>
-            <p className="float-left pr-2">{true ? "skip this step" : "press enter"}</p>
+          <button className={"float-right hover:text-emerald-600 mt-2 w-fit rounded-md px-2 py-1 text-slate-400 font-light "} onClick={handleNext}>
+            <p className={"float-left pr-2 " + sm.className}>{(fileUpload == 0 && page == 3) ? "skip this step" : "press enter"}</p>
             <svg className="float-right w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25L21 12m0 0l-3.75 3.75M21 12H3" />
             </svg>

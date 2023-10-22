@@ -2,10 +2,16 @@
 import Head from "next/head";
 import Link from "next/link";
 import { Karla } from "next/font/google"
+import { IBM_Plex_Mono } from "next/font/google"
 import { Input } from "~/components/ui/input"
 import Intro from "~/components/Intro"
 import AIWriter from "react-aiwriter";
 import { useState } from "react";
+
+const sm = IBM_Plex_Mono({
+  weight: ['400', '700'],
+  subsets: ['latin']
+});
 
 const karla = Karla({
   weight: ['200', '300', '400', '500', '600', '700'],
@@ -29,7 +35,7 @@ export default function Home() {
               <div>
                 <p className='text-2xl pb-4 mr-8 text-emerald-600 w-[350px]'>{text}</p>
                 {!enable && (
-                <button onClick={() => setEnable(true)} className="float-left hover:bg-emerald-700 bg-emerald-600 mt-2 py-2 px-4 rounded-sm text-white">get started -></button>
+                <button onClick={() => setEnable(true)} className={"float-left hover:bg-emerald-700 bg-emerald-600 mt-2 py-2 px-4 rounded-sm text-white v" + sm.className}>get started -></button>
                 )}
                 </div>
           </AIWriter>
