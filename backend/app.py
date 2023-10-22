@@ -2,6 +2,8 @@ import json
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import pandas as pd
+from dotenv import load_dotenv
+import os
 import openai
 app = Flask(__name__)
 CORS(app)
@@ -25,8 +27,9 @@ functions = [
     ]
 
 def init():
+    load_dotenv()
     openai.organization = "org-lPzIpyR2eI9Mmgy9WugFvEH1"
-    openai.api_key = ""
+    openai.api_key = os.getenv("OPENAI_API_KEY")
     
 def categorization(transaction, category_list):
     messages = [{
